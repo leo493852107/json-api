@@ -235,17 +235,17 @@ class JSON_API_Post {
       preg_match('/<img.+src=\"?(.+\.(jpg|gif|bmp|bnp|png))\"?.+>/i',$str,$match);
 
       $tmp = $match[1];
-      // 获得最后一次出现 "." 之后的字符串(包括.)
-      $last = strrchr($tmp, ".");
-      // 倒过来
-      $tmp = strrev($tmp);
-      // 获得 "-" 首次出现的位置到最后(包括-)
-      $first = stristr($tmp, "-");
-      $length = strlen($first);
-      $first = substr($first, 1, $length);
-      // 再翻转
-      $first = strrev($first);
-      $tmp = $first.$last;
+        // 获得最后一次出现 "." 之后的字符串(包括.)
+//      $last = strrchr($tmp, ".");
+//      // 倒过来
+//      $tmp = strrev($tmp);
+//      // 获得 "-" 首次出现的位置到最后(包括-)
+//      $first = stristr($tmp, "-");
+//      $length = strlen($first);
+//      $first = substr($first, 1, $length);
+//      // 再翻转
+//      $first = strrev($first);
+//      $tmp = $first.$last;
       $this->image_url = $tmp;
   }
   
