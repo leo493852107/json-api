@@ -1,31 +1,32 @@
 <?php
 
 class JSON_API_Post {
-  
+
   // Note:
   //   JSON_API_Post objects must be instantiated within The Loop.
-  
+
   var $id;              // Integer
-  var $type;            // String
-  var $slug;            // String
+//  var $type;            // String
+//  var $slug;            // String
   var $url;             // String
-  var $status;          // String ("draft", "published", or "pending")
+//  var $status;          // String ("draft", "published", or "pending")
+  var $image_url; //自定义图片链接
   var $title;           // String
   var $title_plain;     // String
   var $content;         // String (modified by read_more query var)
-  var $excerpt;         // String
+//  var $excerpt;         // String
   var $date;            // String (modified by date_format query var)
-  var $modified;        // String (modified by date_format query var)
-  var $categories;      // Array of objects
-  var $tags;            // Array of objects
+//  var $modified;        // String (modified by date_format query var)
+//  var $categories;      // Array of objects
+//  var $tags;            // Array of objects
   var $author;          // Object
-  var $comments;        // Array of objects
-  var $attachments;     // Array of objects
-  var $comment_count;   // Integer
-  var $comment_status;  // String ("open" or "closed")
-  var $thumbnail;       // String
-  var $custom_fields;   // Object (included by using custom_fields query var)
-  
+//  var $comments;        // Array of objects
+//  var $attachments;     // Array of objects
+//  var $comment_count;   // Integer
+//  var $comment_status;  // String ("open" or "closed")
+//  var $thumbnail;       // String
+//  var $custom_fields;   // Object (included by using custom_fields query var)
+
   function JSON_API_Post($wp_post = null) {
     if (!empty($wp_post)) {
       $this->import_wp_object($wp_post);
@@ -124,31 +125,34 @@ class JSON_API_Post {
     
     return $this->id;
   }
-  
+
   function import_wp_object($wp_post) {
     global $json_api, $post;
     $date_format = $json_api->query->date_format;
     $this->id = (int) $wp_post->ID;
     setup_postdata($wp_post);
-    $this->set_value('type', $wp_post->post_type);
-    $this->set_value('slug', $wp_post->post_name);
+//    $this->set_value('type', $wp_post->post_type);
+//    $this->set_value('slug', $wp_post->post_name);
     $this->set_value('url', get_permalink($this->id));
-    $this->set_value('status', $wp_post->post_status);
+//    $this->set_value('status', $wp_post->post_status);
     $this->set_value('title', get_the_title($this->id));
+    // leo : image_url
+    $this->set_image_url_value($this->title);
     $this->set_value('title_plain', strip_tags(@$this->title));
     $this->set_content_value();
-    $this->set_value('excerpt', apply_filters('the_excerpt', get_the_excerpt()));
+//    $this->set_value('excerpt', apply_filters('the_excerpt', get_the_excerpt()));
     $this->set_value('date', get_the_time($date_format));
-    $this->set_value('modified', date($date_format, strtotime($wp_post->post_modified)));
-    $this->set_categories_value();
-    $this->set_tags_value();
+//    $this->set_value('modified', date($date_format, strtotime($wp_post->post_modified)));
+//    $this->set_categories_value();
+//    $this->set_tags_value();
     $this->set_author_value($wp_post->post_author);
-    $this->set_comments_value();
-    $this->set_attachments_value();
-    $this->set_value('comment_count', (int) $wp_post->comment_count);
-    $this->set_value('comment_status', $wp_post->comment_status);
-    $this->set_thumbnail_value();
-    $this->set_custom_fields_value();
+//    $this->set_comments_value();
+    // 附件
+//    $this->set_attachments_value();
+//    $this->set_value('comment_count', (int) $wp_post->comment_count);
+//    $this->set_value('comment_status', $wp_post->comment_status);
+//    $this->set_thumbnail_value();
+//    $this->set_custom_fields_value();
     $this->set_custom_taxonomies($wp_post->post_type);
     do_action("json_api_import_wp_post", $this, $wp_post);
   }
@@ -223,6 +227,26 @@ class JSON_API_Post {
     } else {
       unset($this->comments);
     }
+  }
+
+  // leo :image_url
+  function set_image_url_value($title) {
+      $str = $title;
+      preg_match('/<img.+src=\"?(.+\.(jpg|gif|bmp|bnp|png))\"?.+>/i',$str,$match);
+
+      $tmp = $match[1];
+      // 获得最后一次出现 "." 之后的字符串(包括.)
+      $last = strrchr($tmp, ".");
+      // 倒过来
+      $tmp = strrev($tmp);
+      // 获得 "-" 首次出现的位置到最后(包括-)
+      $first = stristr($tmp, "-");
+      $length = strlen($first);
+      $first = substr($first, 1, $length);
+      // 再翻转
+      $first = strrev($first);
+      $tmp = $first.$last;
+      $this->image_url = $tmp;
   }
   
   function set_attachments_value() {
